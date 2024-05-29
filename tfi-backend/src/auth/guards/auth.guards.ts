@@ -9,6 +9,7 @@ import { Usuario } from '../entities/usuario.entity';
 import { Reflector } from '@nestjs/core';
 import { Roles } from '../decorators/roles.decorator';
 import { UsuariosService } from '../servicies/usuarios.service';
+import { EstadosUsuarioEnum } from '../enums/estado-usuario.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -27,8 +28,9 @@ export class AuthGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync(token);
 
-      const usuario: Usuario = await this.usuariosService.findOneById(
+      const usuario: Usuario = await this.usuariosService.obtenerUsuarioPorId(
         payload.sub,
+        EstadosUsuarioEnum.ACTIVO
       );
 
       const roles = await this.reflector.get(Roles, context.getHandler());

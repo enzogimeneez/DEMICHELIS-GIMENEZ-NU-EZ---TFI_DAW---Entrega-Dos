@@ -1,4 +1,4 @@
-export enum EstadosUsuarioEnum{
-    ACTIVO="ACTIVO",
-    BAJA="BAJA"
+export enum EstadosUsuarioEnum {
+    ACTIVO = "ACTIVO",
+    PENDIENTE = "PENDIENTE" // TODO Esto quizás debería ser "Inactivo"
 }

@@ -81,7 +81,7 @@ CREATE TABLE `usuarios` (
   `password` varchar(72) NOT NULL,
   `apellido` varchar(255) NOT NULL,
   `nombre` varchar(255) NOT NULL,
-  `estado` enum('Pendiente','Finalizado','Eliminado') NOT NULL DEFAULT 'Pendiente',
+  `estado` enum('Pendiente','Activo') NOT NULL DEFAULT 'Pendiente',
   `username` varchar(255) NOT NULL,
   `rol` enum('Administrador','Ejecutor') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
