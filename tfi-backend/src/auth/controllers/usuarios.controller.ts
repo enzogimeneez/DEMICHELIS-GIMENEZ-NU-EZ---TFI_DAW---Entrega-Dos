@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { UsuariosService } from '../servicies/usuarios.service';
 import { Roles } from '../decorators/roles.decorator';
 import { RolesEnum } from '../enums/roles.enum';
@@ -7,6 +7,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { CreateUserDto } from '../dtos/create-user.dto';
 import { Usuario } from '../entities/usuario.entity';
 import { EstadosUsuarioEnum } from '../enums/estado-usuario.enum';
+import { ModifyUserDto } from '../dtos/modify-user.dto';
 
 @Controller('/usuarios')
 export class UsuariosController {
@@ -56,6 +57,11 @@ export class UsuariosController {
   @Get('buscarPorId')
   async getUserById(@Query('id') userId: number): Promise<Usuario> {
     return await this.usuariosService.obtenerUsuarioPorId(userId, EstadosUsuarioEnum.ACTIVO);
+  }
+
+  @Put('modificarUsuario')
+  async modifyUser(@Query('id') userId: number, @Body() modificarUsuarioDto: ModifyUserDto): Promise<void> {
+    await this.usuariosService.modificarUsuario(userId, modificarUsuarioDto);
   }
 
   @Delete('eliminarUsuario')

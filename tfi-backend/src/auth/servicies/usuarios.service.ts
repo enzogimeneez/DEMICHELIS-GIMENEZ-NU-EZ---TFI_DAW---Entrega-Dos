@@ -5,6 +5,8 @@ import { Like, Repository } from "typeorm";
 import { EstadosUsuarioEnum } from "../enums/estado-usuario.enum";
 import { CreateUserDto } from "../dtos/create-user.dto";
 import { RolesEnum } from "../enums/roles.enum";
+import { ModificarActivityDto } from "src/activities/dto/modificar-activity.dto";
+import { ModifyUserDto } from "../dtos/modify-user.dto";
 
 @Injectable()
 export class UsuariosService {
@@ -23,8 +25,47 @@ export class UsuariosService {
     await this.usuariosRepo.save(usuario);
   }
 
-  // TODO 
-  async modificarUsuario(usuario: Usuario) { }
+  async modificarUsuario(id: number, modificarUserDto: ModifyUserDto): Promise<Usuario> {
+    //const usuario: Usuario = await this.usuariosRepo.findOne({ where: { id: modificarUserDto.id } });
+    const usuario: Usuario = await this.usuariosRepo.findOne({ where: { id: id } });
+
+    if (!usuario) {
+      throw new Error('No se encontró un usuario con la ID especificada.');
+    }
+
+    // Actualizar las propiedades de la actividad
+    if (modificarUserDto.email !== undefined) {
+      usuario.email = modificarUserDto.email;
+    }
+
+    if (modificarUserDto.password !== undefined) {
+      usuario.clave = modificarUserDto.password;
+    }
+
+    if (modificarUserDto.apellido !== undefined) {
+      usuario.apellido = modificarUserDto.apellido;
+    }
+
+    if (modificarUserDto.nombre !== undefined) {
+      usuario.nombre = modificarUserDto.nombre;
+    }
+
+    if (modificarUserDto.username !== undefined) {
+      usuario.nombreUsuario = modificarUserDto.username;
+    }
+
+    if (modificarUserDto.rol !== undefined) {
+      usuario.rol = modificarUserDto.rol;
+    }
+
+    if (modificarUserDto.rol !== undefined) {
+      usuario.estado = modificarUserDto.estado;
+    }
+
+    await this.usuariosRepo.save(usuario);
+
+    return usuario;
+  }
 
   async eliminarUsuario(userId: number): Promise<void> {
     const usuario = await this.obtenerUsuarioPorId(userId, EstadosUsuarioEnum.PENDIENTE);
