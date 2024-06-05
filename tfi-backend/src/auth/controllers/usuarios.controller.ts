@@ -29,31 +29,49 @@ export class UsuariosController {
     return await this.usuariosService.obtenerUsuarios();
   }
 
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR])
+  @UseGuards(AuthGuard)
   @Get('buscarPorNombreDeUsuario')
   async getUserByUsername(@Query('nombreUsuario') nombreUsuario: string): Promise<Usuario> {
     return await this.usuariosService.obtenerUsuarioPorNombreDeUsuario(nombreUsuario);
   }
 
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR])
+  @UseGuards(AuthGuard)
   @Get('buscarPorNombreDeUsuarioSimilar')
   async getUserListByUsername(@Query('nombreUsuario') nombreUsuario: string): Promise<Usuario[]> {
     return await this.usuariosService.obtenerListaDeUsuariosPorNombreDeUsuario(nombreUsuario);
   }
 
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR])
+  @UseGuards(AuthGuard)
   @Get('buscarPorNombreCompleto')
   async getUserListByName(@Query('nombreCompleto') nombreCompleto: string): Promise<Usuario[]> {
     return await this.usuariosService.obtenerListaDeUsuariosPorNombreCompleto(nombreCompleto);
   }
 
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR])
+  @UseGuards(AuthGuard)
   @Get('buscarPorRol')
   async getUserListByRole(@Query('userRole') role: RolesEnum): Promise<Usuario[]> {
     return await this.usuariosService.obtenerListaDeUsuariosPorRol(role);
   }
 
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR])
+  @UseGuards(AuthGuard)
   @Get('buscarUsuariosInactivos')
   async getInactiveUsers(): Promise<Usuario[]> {
     return await this.usuariosService.obtenerListaDeUsuariosInactivos();
   }
 
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR])
+  @UseGuards(AuthGuard)
   @Get('buscarPorId')
   async getUserById(@Query('id') userId: number): Promise<Usuario> {
     return await this.usuariosService.obtenerUsuarioPorId(userId, EstadosUsuarioEnum.ACTIVO);

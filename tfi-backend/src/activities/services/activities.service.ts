@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from '../entities/activity.entity';
@@ -46,6 +46,7 @@ export class ActividadesService {
       if (!actividad) {
         throw new NotFoundException('Actividad no encontrada.');
       }
+
 
       if (modificarActividadDto.descripcion !== undefined) {
         actividad.description = modificarActividadDto.descripcion;

@@ -23,6 +23,7 @@ export class ActividadesController {
     await this.actividadesService.crearActividad(crearActividadDto);
   }
 
+  // TODO Los ejecutores pueden modificar actividades que no son suyas. Arreglar.
   @ApiBearerAuth()
   @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
   @UseGuards(AuthGuard)
