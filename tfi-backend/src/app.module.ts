@@ -15,6 +15,8 @@ import { ActivitiesModule } from './activities/activities.module';
       database: 'tfi_db',
       autoLoadEntities: true,
       synchronize: false,
+      logging: true,
+      logger: 'advanced-console'
     }),
     AuthModule,
     ActivitiesModule,

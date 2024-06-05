@@ -1,7 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { ActividadesService } from '../services/activities.service';
-// import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesEnum } from 'src/auth/enums/roles.enum';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -10,6 +9,7 @@ import { Usuario } from 'src/auth/entities/usuario.entity';
 import { PriorityEnum } from '../enums/prioridades.enum';
 import { ModificarActivityDto } from '../dto/modificar-activity.dto';
 import { EliminarActivityDto } from '../dto/eliminar-actividad';
+import { Activity } from '../entities/activity.entity';
 
 @Controller('/actividades')
 export class ActividadesController {
@@ -17,59 +17,91 @@ export class ActividadesController {
 
   @ApiBearerAuth()
   @Roles([RolesEnum.ADMINISTRADOR])
-  // @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Post()
   async crearActividad(@Body() crearActividadDto: CreateActivityDto) {
     await this.actividadesService.crearActividad(crearActividadDto);
   }
 
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
+  @UseGuards(AuthGuard)
   @Put(':id')
   async modificarActividad(
-    @Req() request: Request,
     @Param('id') id: number,
     @Body() modificarActividadDto: ModificarActivityDto,
   ) {
-    // Mock
+    modificarActividadDto.id = id
 
-    request['usuario'] = {
-      id: 1,
-      rol: RolesEnum.ADMINISTRADOR,
-    };
-
-
-    console.log('Request User:', request['usuario']); // Debug log
-    modificarActividadDto.id = id;
-    console.log('DTO recibido:', modificarActividadDto);
-
-    return await this.actividadesService.modificarActividad(modificarActividadDto, request['usuario']);
+    return await this.actividadesService.modificarActividad(modificarActividadDto);
   };
 
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR])
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async eliminarActividad(
-    @Req() request: Request,
     @Param('id') id: number,
     @Body() eliminarActividad: EliminarActivityDto,
   ) {
-    // Mock
-
-    request['usuario'] = {
-      id: 1,
-      rol: RolesEnum.ADMINISTRADOR,
-    };
-
-
-    console.log('Request User:', request['usuario']); // Debug log
     eliminarActividad.id = id;
-    console.log('DTO recibido:', eliminarActividad);
 
-    return await this.actividadesService.eliminarActividad(eliminarActividad, request['usuario']);
+    return await this.actividadesService.eliminarActividad(eliminarActividad);
   };
 
   @ApiBearerAuth()
   @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
-  //@UseGuards(AuthGuard) // Comentado por ahora.
+  @UseGuards(AuthGuard)
   @Get()
   async getActividades(@Body() usuario: Usuario) {
     return await this.actividadesService.getActividades(usuario);
+  }
+
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR])
+  @UseGuards(AuthGuard)
+  @Get("buscarPorUsuarioResponsable")
+  async getActividadesByResponsibleUser(@Query('id') userId: number) {
+    return await this.actividadesService.getActividadesByResponsibleUser(userId);
+  }
+
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
+  @UseGuards(AuthGuard)
+  @Get("buscarActividadesCompletas")
+  async getCompletedActividades(@Body() usuario: Usuario) {
+    return await this.actividadesService.getCompletedActividades(usuario);
+  }
+
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
+  @UseGuards(AuthGuard)
+  @Get("buscarActividadesPendientes")
+  async getPendingActividades(@Body() usuario: Usuario) {
+    return await this.actividadesService.getPendingActividades(usuario);
+  }
+
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
+  @UseGuards(AuthGuard)
+  @Get("buscarActividadesEliminadas")
+  async getErasedActividades(@Body() usuario: Usuario) {
+    return await this.actividadesService.getErasedActividades(usuario);
+  }
+
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
+  @UseGuards(AuthGuard)
+  @Get("buscarActividadesPorDescripcion")
+  async getActividadesByDescription(@Query('actividadDescripcion') descripcion: string, @Body() usuario: Usuario): Promise<Activity[]> {
+    return await this.actividadesService.getActividadesByDescription(descripcion, usuario);
+  }
+
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR])
+  @UseGuards(AuthGuard)
+  @Get("buscarActividadesPorId")
+  async getActividadesById(@Query('id') id: number): Promise<Activity> {
+    return await this.actividadesService.getActividadesById(id);
   }
 }

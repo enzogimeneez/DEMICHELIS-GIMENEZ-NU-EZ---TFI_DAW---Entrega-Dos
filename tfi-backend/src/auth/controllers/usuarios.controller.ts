@@ -15,7 +15,7 @@ export class UsuariosController {
 
   @ApiBearerAuth()
   @Roles([RolesEnum.ADMINISTRADOR])
-  //  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   @Post()
   async createUsuarios(@Body() crearUsuarioDto: CreateUserDto) {
     await this.usuariosService.crearUsuario(crearUsuarioDto);
@@ -24,7 +24,7 @@ export class UsuariosController {
   @Get()
   @ApiBearerAuth()
   @Roles([RolesEnum.ADMINISTRADOR])
-  //  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard)
   async getUsuarios() {
     return await this.usuariosService.obtenerUsuarios();
   }
@@ -49,9 +49,9 @@ export class UsuariosController {
     return await this.usuariosService.obtenerListaDeUsuariosPorRol(role);
   }
 
-  @Get('buscarUsuariosPendientes')
-  async getPendingUsers(): Promise<Usuario[]> {
-    return await this.usuariosService.obtenerListaDeUsuariosPendientes();
+  @Get('buscarUsuariosInactivos')
+  async getInactiveUsers(): Promise<Usuario[]> {
+    return await this.usuariosService.obtenerListaDeUsuariosInactivos();
   }
 
   @Get('buscarPorId')
@@ -60,11 +60,17 @@ export class UsuariosController {
   }
 
   @Put('modificarUsuario')
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR])
+  @UseGuards(AuthGuard)
   async modifyUser(@Query('id') userId: number, @Body() modificarUsuarioDto: ModifyUserDto): Promise<void> {
     await this.usuariosService.modificarUsuario(userId, modificarUsuarioDto);
   }
 
   @Delete('eliminarUsuario')
+  @ApiBearerAuth()
+  @Roles([RolesEnum.ADMINISTRADOR])
+  @UseGuards(AuthGuard)
   async deleteUser(@Query('id') userId: string): Promise<void> {
     const parsedUserId = parseInt(userId, 10);
 

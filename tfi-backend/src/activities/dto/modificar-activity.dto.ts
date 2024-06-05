@@ -5,7 +5,7 @@ export class ModificarActivityDto {
     id?: number
 
     @IsOptional()
-    descripción?: string
+    descripcion?: string
 
     @IsOptional()
     idUsuarioActual

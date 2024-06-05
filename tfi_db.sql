@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-05-2024 a las 01:54:10
+-- Tiempo de generación: 03-06-2024 a las 23:51:45
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `actividades` (
   idActividades INT(11) AUTO_INCREMENT PRIMARY KEY,
-  `descripción` longtext NOT NULL,
+  `descripcion` longtext NOT NULL,
   `prioridad` enum('Alta','Media','Baja') NOT NULL,
   `fecha_modificacion` datetime NOT NULL,
   `estado` enum('Pendiente','Finalizado','Eliminado') DEFAULT 'Pendiente',
@@ -41,8 +41,12 @@ CREATE TABLE `actividades` (
 -- Volcado de datos para la tabla `actividades`
 --
 
-INSERT INTO `actividades` (`idActividades`, `descripción`, `prioridad`, `fecha_modificacion`, `estado`, `idUsuario_actual`, `idUsuario_modificacion`) VALUES
-(0, 'leer', 'Alta', '2024-04-29 14:35:32', 'Pendiente', 1, 0);
+INSERT INTO `actividades` (`idActividades`, `descripcion`, `prioridad`, `fecha_modificacion`, `estado`, `idUsuario_actual`, `idUsuario_modificacion`) VALUES
+(0, 'ACTIVIDAD UNO', 'Baja', '2024-04-29 14:35:32', 'Pendiente', 1, 0),
+(1, 'ACTIVIDAD DOS', 'Media', '2024-04-29 14:35:32', 'Pendiente', 1, 0),
+(2, 'ACTIVIDAD TRES', 'Media', '2024-04-29 14:35:32', 'Pendiente', 1, 0),
+(3, 'ACTIVIDAD CUATRO', 'Media', '2024-04-29 14:35:32', 'Pendiente', 1, 0),
+(4, 'ACTIVIDAD CINCO', 'Media', '2024-04-29 14:35:32', 'Pendiente', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -67,7 +71,9 @@ CREATE TABLE `actividades_autoria` (
 --
 
 INSERT INTO `actividades_autoria` (`idActividades_autoria`, `descripcion`, `prioridad`, `fecha_modificacion`, `estado`, `operacion`, `idUsuario_actual`, `idUsuario_modificacion`, `idActividad`) VALUES
-(0, 'Corregir', 'Alta', '2024-04-29 14:37:39', 'Pendiente', 'Creación', 0, 1, 0);
+(0, 'TFI_1', 'Alta', '2024-04-29 14:37:39', 'Finalizado', 'Creación', 0, 1, 0),
+(1, 'TFI_2', 'Alta', '2024-04-29 14:37:39', 'Pendiente', 'Creación', 0, 1, 0),
+(2, 'TFI_3', 'Alta', '2024-04-29 14:37:39', 'Pendiente', 'Creación', 0, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -78,21 +84,24 @@ INSERT INTO `actividades_autoria` (`idActividades_autoria`, `descripcion`, `prio
 CREATE TABLE `usuarios` (
   `idUsuarios` int(11) AUTO_INCREMENT PRIMARY KEY,
   `email` varchar(255) NOT NULL,
-  `password` varchar(72) NOT NULL,
+  `clave` varchar(72) NOT NULL,
   `apellido` varchar(255) NOT NULL,
   `nombre` varchar(255) NOT NULL,
-  `estado` enum('Pendiente','Activo') NOT NULL DEFAULT 'Pendiente',
-  `username` varchar(255) NOT NULL,
-  `rol` enum('Administrador','Ejecutor') NOT NULL
+  `estado` enum('ACTIVO','BAJA') NOT NULL DEFAULT 'ACTIVO',
+  `nombreUsuario` varchar(255) NOT NULL,
+  `rol` enum('ADMINISTRADOR','EJECUTOR') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Volcado de datos para la tabla `usuarios`
 --
 
-INSERT INTO `usuarios` (`idUsuarios`, `email`, `password`, `apellido`, `nombre`, `estado`, `username`, `rol`) VALUES
-(0, 'cristhian@admin.com', '1234', 'Faure', 'Cristhian', '', 'CFaure', 'Administrador'),
-(1, 'juanbuffa@admin.com', '1234', 'Buffa', 'Juan', 'Pendiente', 'juanbuffa', 'Administrador');
+INSERT INTO `usuarios` (`idUsuarios`, `email`, `clave`, `apellido`, `nombre`, `estado`, `nombreUsuario`, `rol`) VALUES
+(0, 'cristhian@admin.com', '$2a$10$1EJfrFno1VcROKSmLpy2ruvBUnvVU7WE.3e5QZLMUTALtHw4A1NAC\n', 'Faure', 'Cristhian', 'ACTIVO', 'CFaure', 'ADMINISTRADOR'),
+(1, 'juanbuffa@admin.com', '$2a$10$CsLtlMNtblTL25xSyB0wquNF1KQUmhCCtwIJqeY3zel4NSbYNYsEC\n', 'Buffa', 'Juan', 'ACTIVO', 'juanbuffa', 'ADMINISTRADOR'),
+(2, 'demichelisagusss@hotmail.com', '$2a$10$YetiaxD1GRBiRhGyTop.HOxm2MzUZAKRHdOgI6dTN1ETiezJxRdVG\n', 'Demichelis', 'Agustín', 'ACTIVO', 'agustindemichelis', 'EJECUTOR'),
+(3, 'enzogimenezsilva@gmail.com', '$2a$10$YetiaxD1GRBiRhGyTop.HOxm2MzUZAKRHdOgI6dTN1ETiezJxRdVG\n', 'Gimenez', 'Enzo', 'ACTIVO', 'enzogimeneez', 'EJECUTOR'),
+(4, 'juaninuniez@gmail.com', '$2a$10$YetiaxD1GRBiRhGyTop.HOxm2MzUZAKRHdOgI6dTN1ETiezJxRdVG\n', 'Nuñez', 'Juan', 'ACTIVO', 'juaninuniez', 'ADMINISTRADOR');
 
 --
 -- Índices para tablas volcadas
@@ -104,7 +113,6 @@ INSERT INTO `usuarios` (`idUsuarios`, `email`, `password`, `apellido`, `nombre`,
 ALTER TABLE `actividades`
   ADD KEY `fk_actividades_usuarios1_idx` (`idUsuario_actual`),
   ADD KEY `fk_actividades_usuarios2_idx` (`idUsuario_modificacion`);
-
 --
 -- Indices de la tabla `actividades_autoria`
 --

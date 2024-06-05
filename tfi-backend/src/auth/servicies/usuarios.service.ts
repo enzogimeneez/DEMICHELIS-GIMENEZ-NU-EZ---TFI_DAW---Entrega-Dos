@@ -1,12 +1,12 @@
-import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Usuario } from "../entities/usuario.entity";
 import { Like, Repository } from "typeorm";
 import { EstadosUsuarioEnum } from "../enums/estado-usuario.enum";
 import { CreateUserDto } from "../dtos/create-user.dto";
 import { RolesEnum } from "../enums/roles.enum";
-import { ModificarActivityDto } from "src/activities/dto/modificar-activity.dto";
 import { ModifyUserDto } from "../dtos/modify-user.dto";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuariosService {
@@ -14,8 +14,9 @@ export class UsuariosService {
 
   async crearUsuario(crearUsuarioDto: CreateUserDto) {
     const usuario = new Usuario();
+
     usuario.email = crearUsuarioDto.email;
-    usuario.clave = crearUsuarioDto.password;
+    usuario.clave = await bcrypt.hash(crearUsuarioDto.password, 10)
     usuario.apellido = crearUsuarioDto.apellido;
     usuario.nombre = crearUsuarioDto.nombre;
     usuario.estado = crearUsuarioDto.estado;
@@ -39,7 +40,7 @@ export class UsuariosService {
     }
 
     if (modificarUserDto.password !== undefined) {
-      usuario.clave = modificarUserDto.password;
+      usuario.clave = await bcrypt.hash(modificarUserDto.password, 10);
     }
 
     if (modificarUserDto.apellido !== undefined) {
@@ -68,7 +69,7 @@ export class UsuariosService {
   }
 
   async eliminarUsuario(userId: number): Promise<void> {
-    const usuario = await this.obtenerUsuarioPorId(userId, EstadosUsuarioEnum.PENDIENTE);
+    const usuario = await this.obtenerUsuarioPorId(userId, EstadosUsuarioEnum.BAJA);
 
     if (!usuario) { // Creo que esto es redundante.
       throw new NotFoundException('No se encontró un usuario pendiente con el ID especificado.');
@@ -127,6 +128,7 @@ export class UsuariosService {
     return usuarios;
   }
 
+  // TODO No funciona correctamente si querés buscar el nombre y el apellido simultaneamente.
   async obtenerListaDeUsuariosPorNombreCompleto(nombreCompleto: string): Promise<Usuario[]> {
     const usuarios: Usuario[] = await this.usuariosRepo.find({
       where: [
@@ -161,16 +163,16 @@ export class UsuariosService {
     return usuarios;
   }
 
-  async obtenerListaDeUsuariosPendientes(): Promise<Usuario[]> {
+  async obtenerListaDeUsuariosInactivos(): Promise<Usuario[]> {
     const usuarios: Usuario[] = await this.usuariosRepo.find({
       where: {
-        estado: EstadosUsuarioEnum.PENDIENTE
+        estado: EstadosUsuarioEnum.BAJA
       }
     });
 
     if (!usuarios || usuarios.length == 0) {
       throw new NotFoundException(
-        'No existen usuarios pendientes.',
+        'No existen usuarios inactivos.',
       );
     }
 

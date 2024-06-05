@@ -13,7 +13,7 @@ export class Usuario {
   email: string
 
   @Exclude()
-  @Column({ name: 'password' })
+  @Column()
   clave: string
 
   @Column({ name: 'apellido' })
@@ -25,7 +25,7 @@ export class Usuario {
   @Column({ type: 'enum', enum: EstadosUsuarioEnum, name: 'estado' })
   estado: EstadosUsuarioEnum
 
-  @Column({ name: 'username' })
+  @Column({ name: 'nombreUsuario' })
   nombreUsuario: string
 
   @Column({ type: 'enum', enum: RolesEnum, name: 'rol' })
