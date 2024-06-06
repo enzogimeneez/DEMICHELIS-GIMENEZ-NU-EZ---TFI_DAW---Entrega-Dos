@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ActivitiesModule } from './activities/activities.module';
+import { AuditsModule } from './audits/audits.module';
 
 @Module({
   imports: [
@@ -15,9 +16,11 @@ import { ActivitiesModule } from './activities/activities.module';
       database: 'tfi_db',
       autoLoadEntities: true,
       synchronize: false,
+      logger: 'advanced-console'
     }),
     AuthModule,
     ActivitiesModule,
+    AuditsModule,
     JwtModule.register({
       global: true,
       secret: 'tpidawsecreto',
