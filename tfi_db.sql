@@ -42,11 +42,11 @@ CREATE TABLE `actividades` (
 --
 
 INSERT INTO `actividades` (`idActividades`, `descripcion`, `prioridad`, `fecha_modificacion`, `estado`, `idUsuario_actual`, `idUsuario_modificacion`) VALUES
-(0, 'ACTIVIDAD UNO', 'Baja', '2024-04-29 14:35:32', 'Pendiente', 1, 0),
-(1, 'ACTIVIDAD DOS', 'Media', '2024-04-29 14:35:32', 'Pendiente', 1, 0),
-(2, 'ACTIVIDAD TRES', 'Media', '2024-04-29 14:35:32', 'Pendiente', 1, 0),
-(3, 'ACTIVIDAD CUATRO', 'Media', '2024-04-29 14:35:32', 'Pendiente', 1, 0),
-(4, 'ACTIVIDAD CINCO', 'Media', '2024-04-29 14:35:32', 'Pendiente', 1, 0);
+(0, 'Actualizar banner de la página web', 'Baja', '2024-04-26 14:35:32', 'Pendiente', 1, 0),
+(1, 'Realizar copias de seguridad del catálogo', 'Media', '2024-04-27 15:11:24', 'Pendiente', 1, 0),
+(2, 'Actualizar medidas de ciberseguridad', 'Alta', '2024-04-28 18:04:55', 'Pendiente', 2, 0),
+(3, 'Solucionar errores de acceso a la página web', 'Media', '2024-04-30 20:00:02', 'Finalizado', 3, 1),
+(4, 'Implementar traducción al Inglés de los Terminos de Servicio', 'Alta', '2024-05-01 13:42:58', 'Eliminado', 4, 1);
 
 -- --------------------------------------------------------
 
@@ -71,9 +71,14 @@ CREATE TABLE `actividades_autoria` (
 --
 
 INSERT INTO `actividades_autoria` (`idActividades_autoria`, `descripcion`, `prioridad`, `fecha_modificacion`, `estado`, `operacion`, `idUsuario_actual`, `idUsuario_modificacion`, `idActividad`) VALUES
-(0, 'TFI_1', 'Alta', '2024-04-29 14:37:39', 'Finalizado', 'Creación', 0, 1, 0),
-(1, 'TFI_2', 'Alta', '2024-04-29 14:37:39', 'Pendiente', 'Creación', 0, 1, 0),
-(2, 'TFI_3', 'Alta', '2024-04-29 14:37:39', 'Pendiente', 'Creación', 0, 1, 0);
+(0, 'Actualizar banner de la página web', 'Baja', '2024-04-26 14:35:32', 'Pendiente', 'Creación', 1, 0, 0),
+(1, 'Realizar copias de seguridad del catálogo', 'Media', '2024-04-27 15:11:24', 'Pendiente', 'Creación', 1, 0, 1),
+(2, 'Actualizar medidas de ciberseguridad', 'Alta', '2024-04-28 18:04:55', 'Pendiente', 'Creación', 2, 0, 2),
+(3, 'Solucionar errores de acceso a la página web', 'Media', '2024-04-29 09:04:55', 'Pendiente', 'Creación', 3, 1, 3),
+(4, 'Implementar traducción al Inglés de los Terminos de Servicio', 'Alta', '2024-05-01 13:42:58', 'Pendiente', 'Creación', 4, 1, 4),
+(5, 'Implementar traducción al Inglés de los Terminos de Servicio', 'Alta', '2024-05-01 18:04:04', 'Eliminado', 'Eliminación', 4, 0, 4),
+(6, 'Solucionar errores de acceso a la página web', 'Media', '2024-04-29 14:37:39', 'Finalizado', 'Modificación', 3, 3, 3);
+
 
 -- --------------------------------------------------------
 
@@ -101,7 +106,8 @@ INSERT INTO `usuarios` (`idUsuarios`, `email`, `clave`, `apellido`, `nombre`, `e
 (1, 'juanbuffa@admin.com', '$2a$10$CsLtlMNtblTL25xSyB0wquNF1KQUmhCCtwIJqeY3zel4NSbYNYsEC\n', 'Buffa', 'Juan', 'ACTIVO', 'juanbuffa', 'ADMINISTRADOR'),
 (2, 'demichelisagusss@hotmail.com', '$2a$10$YetiaxD1GRBiRhGyTop.HOxm2MzUZAKRHdOgI6dTN1ETiezJxRdVG\n', 'Demichelis', 'Agustín', 'ACTIVO', 'agustindemichelis', 'EJECUTOR'),
 (3, 'enzogimenezsilva@gmail.com', '$2a$10$YetiaxD1GRBiRhGyTop.HOxm2MzUZAKRHdOgI6dTN1ETiezJxRdVG\n', 'Gimenez', 'Enzo', 'ACTIVO', 'enzogimeneez', 'EJECUTOR'),
-(4, 'juaninuniez@gmail.com', '$2a$10$YetiaxD1GRBiRhGyTop.HOxm2MzUZAKRHdOgI6dTN1ETiezJxRdVG\n', 'Nuñez', 'Juan', 'ACTIVO', 'juaninuniez', 'ADMINISTRADOR');
+(4, 'juaninuniez@gmail.com', '$2a$10$YetiaxD1GRBiRhGyTop.HOxm2MzUZAKRHdOgI6dTN1ETiezJxRdVG\n', 'Núñez', 'Juan', 'ACTIVO', 'juaninuniez', 'ADMINISTRADOR'),
+(5, 'carlosgonzalez@gmail.com', '$2a$10$YetiaxD1GRBiRhGyTop.HOxm2MzUZAKRHdOgI6dTN1ETiezJxRdVG\n', 'González', 'Carlos', 'BAJA', 'carlosgonzalez2', 'EJECUTOR');
 
 --
 -- Índices para tablas volcadas

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { ActividadesService } from '../services/activities.service';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -6,7 +6,6 @@ import { RolesEnum } from 'src/auth/enums/roles.enum';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/guards/auth.guards';
 import { Usuario } from 'src/auth/entities/usuario.entity';
-import { PriorityEnum } from '../enums/prioridades.enum';
 import { ModificarActivityDto } from '../dto/modificar-activity.dto';
 import { EliminarActivityDto } from '../dto/eliminar-actividad';
 import { Activity } from '../entities/activity.entity';
@@ -19,11 +18,12 @@ export class ActividadesController {
   @Roles([RolesEnum.ADMINISTRADOR])
   @UseGuards(AuthGuard)
   @Post()
-  async crearActividad(@Body() crearActividadDto: CreateActivityDto) {
+  async crearActividad(@Body() crearActividadDto: CreateActivityDto, @Req() req: Usuario) {
+    crearActividadDto.usuarioCreador = req['usuario'];
+
     await this.actividadesService.crearActividad(crearActividadDto);
   }
 
-  // TODO Los ejecutores pueden modificar actividades que no son suyas. Arreglar.
   @ApiBearerAuth()
   @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
   @UseGuards(AuthGuard)
@@ -31,8 +31,10 @@ export class ActividadesController {
   async modificarActividad(
     @Param('id') id: number,
     @Body() modificarActividadDto: ModificarActivityDto,
+    @Req() req: Usuario
   ) {
     modificarActividadDto.id = id
+    modificarActividadDto.usuarioModificante = req['usuario'];
 
     return await this.actividadesService.modificarActividad(modificarActividadDto);
   };
@@ -54,8 +56,10 @@ export class ActividadesController {
   @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
   @UseGuards(AuthGuard)
   @Get()
-  async getActividades(@Body() usuario: Usuario) {
-    return await this.actividadesService.getActividades(usuario);
+  async getActividades(@Req() req: Usuario) {
+    req = req['usuario'];
+
+    return await this.actividadesService.getActividades(req);
   }
 
   @ApiBearerAuth()
@@ -70,7 +74,9 @@ export class ActividadesController {
   @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
   @UseGuards(AuthGuard)
   @Get("buscarActividadesCompletas")
-  async getCompletedActividades(@Body() usuario: Usuario) {
+  async getCompletedActividades(@Req() req: Usuario) {
+    const usuario = req['usuario'];
+
     return await this.actividadesService.getCompletedActividades(usuario);
   }
 
@@ -78,7 +84,9 @@ export class ActividadesController {
   @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
   @UseGuards(AuthGuard)
   @Get("buscarActividadesPendientes")
-  async getPendingActividades(@Body() usuario: Usuario) {
+  async getPendingActividades(@Req() req: Usuario) {
+    const usuario = req['usuario'];
+
     return await this.actividadesService.getPendingActividades(usuario);
   }
 
@@ -86,7 +94,9 @@ export class ActividadesController {
   @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
   @UseGuards(AuthGuard)
   @Get("buscarActividadesEliminadas")
-  async getErasedActividades(@Body() usuario: Usuario) {
+  async getErasedActividades(@Req() req: Usuario) {
+    const usuario = req['usuario'];
+
     return await this.actividadesService.getErasedActividades(usuario);
   }
 
@@ -94,7 +104,9 @@ export class ActividadesController {
   @Roles([RolesEnum.ADMINISTRADOR, RolesEnum.EJECUTOR])
   @UseGuards(AuthGuard)
   @Get("buscarActividadesPorDescripcion")
-  async getActividadesByDescription(@Query('actividadDescripcion') descripcion: string, @Body() usuario: Usuario): Promise<Activity[]> {
+  async getActividadesByDescription(@Query('actividadDescripcion') descripcion: string, @Req() req: Usuario): Promise<Activity[]> {
+    const usuario = req['usuario'];
+
     return await this.actividadesService.getActividadesByDescription(descripcion, usuario);
   }
 

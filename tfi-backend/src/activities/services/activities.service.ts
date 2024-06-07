@@ -1,19 +1,24 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, forwardRef } from '@nestjs/common';
 import { CreateActivityDto } from '../dto/create-activity.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from '../entities/activity.entity';
-import { Like, Not, Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { EstadosActividadEnum } from '../enums/estados.enum';
 import { Usuario } from 'src/auth/entities/usuario.entity';
 import { RolesEnum } from 'src/auth/enums/roles.enum';
 import { ModificarActivityDto } from '../dto/modificar-activity.dto';
 import { EliminarActivityDto } from '../dto/eliminar-actividad'; import { UsuariosService } from 'src/auth/servicies/usuarios.service';
 import { EstadosUsuarioEnum } from 'src/auth/enums/estado-usuario.enum';
+import { AuditsService } from 'src/audits/services/audits.service';
+import { OperacionAutoriaEnum } from 'src/audits/enums/operacion.enum';
+import { CreateAuditDto } from 'src/audits/dtos/create-audit.dto';
+import { ExceptionsHandler } from '@nestjs/core/exceptions/exceptions-handler';
 
 @Injectable()
 export class ActividadesService {
   constructor(
     @InjectRepository(Activity) private actividadesRepo: Repository<Activity>,
+    private auditsService: AuditsService,
     private usuariosService: UsuariosService,
   ) { }
 
@@ -26,10 +31,29 @@ export class ActividadesService {
       actividad.description = crearActividadDto.descripcion;
       actividad.priority = crearActividadDto.prioridad;
       actividad.modificationDate = new Date();
-
       actividad.responsibleUser = usuarioResponsable;
 
       await this.actividadesRepo.save(actividad);
+
+      const newAudit = new CreateAuditDto();
+
+      // * Seguramente existen mejores implementaciones para esto, pero si sirve, sirve.
+      const activitiesArray = await this.getActividadesByResponsibleUser(actividad.responsibleUser.id);
+      const activityId = activitiesArray[activitiesArray.length - 1].id;
+
+      newAudit.description = actividad.description;
+      newAudit.priority = actividad.priority;
+      newAudit.status = EstadosActividadEnum.PENDIENTE;
+      newAudit.operation = OperacionAutoriaEnum.CREACION;
+      newAudit.currentUserId = actividad.responsibleUser.id;
+      if (crearActividadDto.usuarioCreador !== undefined) {
+        newAudit.modifyingUserId = crearActividadDto.usuarioCreador.id;
+      } else {
+        newAudit.modifyingUserId = newAudit.currentUserId;
+      }
+      newAudit.activityId = activityId;
+
+      await this.auditsService.createAudit(newAudit);
 
       return actividad;
     } catch (error) {
@@ -39,14 +63,18 @@ export class ActividadesService {
 
   async modificarActividad(modificarActividadDto: ModificarActivityDto): Promise<Activity> {
     try {
-      const usuarioResponsable = await this.usuariosService.obtenerUsuarioPorId(modificarActividadDto.idUsuarioActual, EstadosUsuarioEnum.ACTIVO)
+      const nuevoUsuarioResponsable = await this.usuariosService.obtenerUsuarioPorId(modificarActividadDto.idUsuarioActual, EstadosUsuarioEnum.ACTIVO)
+      const usuarioModificante = await this.usuariosService.obtenerUsuarioPorId(modificarActividadDto.usuarioModificante.id, EstadosUsuarioEnum.ACTIVO)
 
-      const actividad = await this.actividadesRepo.findOne({ where: { id: modificarActividadDto.id } });
+      const actividad = await this.getActividadesById(modificarActividadDto.id);
 
       if (!actividad) {
         throw new NotFoundException('Actividad no encontrada.');
       }
 
+      if (usuarioModificante.rol === RolesEnum.EJECUTOR && actividad.responsibleUser.id != usuarioModificante.id) {
+        throw new UnauthorizedException("Los ejecutores no pueden modificar actividades no propias.");
+      }
 
       if (modificarActividadDto.descripcion !== undefined) {
         actividad.description = modificarActividadDto.descripcion;
@@ -56,17 +84,51 @@ export class ActividadesService {
         actividad.priority = modificarActividadDto.prioridad;
       }
 
-      if (modificarActividadDto.idUsuarioActual !== undefined) {
-        actividad.responsibleUser = usuarioResponsable;
+      if (modificarActividadDto.idUsuarioActual !== undefined && usuarioModificante.rol === RolesEnum.ADMINISTRADOR) {
+        actividad.responsibleUser = nuevoUsuarioResponsable;
+      }
+
+      if (modificarActividadDto.estado !== undefined) {
+        actividad.status = modificarActividadDto.estado;
+      }
+
+      if (modificarActividadDto.usuarioModificante !== undefined) {
+        actividad.modifyingUser = modificarActividadDto.usuarioModificante.id;
+      } else {
+        actividad.modifyingUser = nuevoUsuarioResponsable.id;
       }
 
       actividad.modificationDate = new Date();
 
       await this.actividadesRepo.save(actividad);
 
+      const newAudit = new CreateAuditDto();
+
+      // * Seguramente existen mejores implementaciones para esto, pero si sirve, sirve.
+      const activitiesArray = await this.getActividadesByResponsibleUser(actividad.responsibleUser.id);
+      const activityId = activitiesArray[activitiesArray.length - 1].id;
+
+      newAudit.description = actividad.description;
+      newAudit.priority = actividad.priority;
+      newAudit.status = actividad.status;
+      if (actividad.status == EstadosActividadEnum.ELIMINADO) {
+        newAudit.operation = OperacionAutoriaEnum.ELIMINACION
+      } else {
+        newAudit.operation = OperacionAutoriaEnum.MODIFICACION;
+      }
+      newAudit.currentUserId = actividad.responsibleUser.id;
+      if (modificarActividadDto.usuarioModificante) {
+        newAudit.modifyingUserId = modificarActividadDto.usuarioModificante.id;
+      } else {
+        newAudit.modifyingUserId = newAudit.currentUserId;
+      }
+      newAudit.activityId = activityId;
+
+      await this.auditsService.createAudit(newAudit);
+
       return actividad;
     } catch (error) {
-      throw new NotFoundException("No se encontró un usuario activo con la ID especificada para el usuario responsable.");
+      throw error;
     }
   }
 
@@ -177,6 +239,8 @@ export class ActividadesService {
           responsibleUser: usuario
         }
       });
+
+      return actividades;
     } else {
       const actividades: Activity[] = await this.actividadesRepo.find({
         where: {
@@ -192,7 +256,7 @@ export class ActividadesService {
     const actividades: Activity = await this.actividadesRepo.findOne({
       where: {
         id: actividadId
-      }
+      }, relations: ['responsibleUser']
     });
 
     return actividades;

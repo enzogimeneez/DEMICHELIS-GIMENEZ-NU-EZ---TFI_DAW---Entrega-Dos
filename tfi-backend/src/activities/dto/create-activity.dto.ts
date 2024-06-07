@@ -1,14 +1,18 @@
-import { IsNotEmpty, IsString } from "class-validator"
+import { IsNotEmpty, IsOptional, IsString } from "class-validator"
 import { PriorityEnum } from "../enums/prioridades.enum"
+import { Usuario } from "src/auth/entities/usuario.entity"
 
-export class CreateActivityDto{
+export class CreateActivityDto {
 
     @IsString()
-    descripcion:string
+    descripcion: string
 
     @IsNotEmpty()
-    idUsuarioActual:number
+    idUsuarioActual: number
 
     @IsNotEmpty()
-    prioridad:PriorityEnum
+    prioridad: PriorityEnum
+
+    @IsOptional()
+    usuarioCreador: Usuario
 }

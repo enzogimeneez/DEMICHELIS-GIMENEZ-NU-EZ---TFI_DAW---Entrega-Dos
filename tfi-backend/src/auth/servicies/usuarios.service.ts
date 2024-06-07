@@ -180,8 +180,6 @@ export class UsuariosService {
   }
 
   async obtenerUsuarioPorId(userId: number, userState: EstadosUsuarioEnum): Promise<Usuario> {
-    console.log(userId)
-    console.log(userState)
     const usuario = await this.usuariosRepo.findOne({
       where: {
         id: userId,

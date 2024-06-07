@@ -1,9 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { PriorityEnum } from '../enums/prioridades.enum';
-import { Usuario } from 'src/auth/entities/usuario.entity';
 import { EstadosActividadEnum } from '../enums/estados.enum';
 import { OperacionAutoriaEnum } from '../enums/operacion.enum';
-import { Activity } from 'src/activities/entities/activity.entity';
 
 @Entity({ name: 'actividades_autoria' })
 export class Audit {
